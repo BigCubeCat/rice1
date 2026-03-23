@@ -1,0 +1,21 @@
+# Игнорирование директорий сборки
+**/build/
+**/cmake-build-*/
+**/.idea/
+**/.vscode/
+**/*.pro.user
+
+# Игнорирование системных файлов
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Игнорирование git
+.git/
+.gitignore
+
+# Логи и временные файлы
+*.log
+*.tmp
