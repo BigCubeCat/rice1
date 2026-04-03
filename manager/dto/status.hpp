@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdexcept>
+#include <utility>
 
 #include <qjsonarray.h>
 #include <qjsonobject.h>
@@ -10,6 +11,7 @@
 namespace dto {
 class TStatusResponse final : public TDtoIface {
 public:
+    TStatusResponse(QString status) : m_status(std::move(status)) { }
     TStatusResponse(const TStatusResponse &)            = default;
     TStatusResponse(TStatusResponse &&)                 = delete;
     TStatusResponse &operator=(const TStatusResponse &) = default;
@@ -32,6 +34,10 @@ public:
     }
     void deserialize(const QJsonObject &object) override {
         throw std::runtime_error("Not implemented");
+    }
+
+    void setData(const std::optional<QStringList> &data) {
+        m_data = data;
     }
 
 private:

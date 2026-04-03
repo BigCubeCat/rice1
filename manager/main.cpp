@@ -16,45 +16,34 @@
 #include <memory.h>
 
 #include "manager.hpp"
+#include "worker.hpp"
 
 
-namespace {
-void setupRouter(QHttpServer &server) {
+int main(int argc, char *argv[]) {
+    QCoreApplication app(argc, argv);
+    QHttpServer server;
+
+    auto *thread     = new QThread();    // NOLINT
+    TManager manager = TManager();
+    TWorker worker   = TWorker();
+    worker.moveToThread(thread);
+    thread->start();
+
     server.route("/", []() { return "Hello world"; });
     server.route(
         "/api/hash/crack",
         QHttpServerRequest::Method::Post,
-        [](const QHttpServerRequest &request, QHttpServerResponder &responder) {
+        [&](const QHttpServerRequest &request) {
+            return manager.crackHandler(request);
         }
     );
     server.route(
         "/api/hash/status",
         QHttpServerRequest::Method::Get,
-        [](const QHttpServerRequest &request) {
-            QUrl url = request.url();
-            qDebug() << "url=" << url;
-            QUrlQuery query(url);
-            QString requestId = query.queryItemValue("requestId");
-            qDebug() << "status: " << requestId;
-
-            QJsonObject json;
-            json["status"]  = "ok";
-            json["message"] = "Hello world";
-            QJsonDocument doc(json);
-            qDebug() << "json=" << doc.toJson();
-            return QHttpServerResponse(doc.toJson());
+        [&](const QHttpServerRequest &request) {
+            return manager.statusHandler(request);
         }
     );
-}
-};    // namespace
-
-
-int main(int argc, char *argv[]) {
-    QCoreApplication app(argc, argv);
-
-    QHttpServer server;
-    setupRouter(server);
-
 
     auto tcpserver = std::make_unique<QTcpServer>();
     if (!tcpserver->listen(QHostAddress::Any, 8080)

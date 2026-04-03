@@ -8,6 +8,7 @@
 namespace dto {
 class TCrackRequest final : public TDtoIface {
 public:
+    TCrackRequest()                                 = default;
     TCrackRequest(const TCrackRequest &)            = default;
     TCrackRequest(TCrackRequest &&)                 = delete;
     TCrackRequest &operator=(const TCrackRequest &) = default;
@@ -31,12 +32,13 @@ public:
     }
 
 private:
-    QString m_hash;
-    int m_maxLength;
+    QString m_hash  = "";
+    int m_maxLength = 0;
 };
 
 class TCrackResponse final : public TDtoIface {
 public:
+    TCrackResponse()                                  = default;
     TCrackResponse(const TCrackResponse &)            = default;
     TCrackResponse(TCrackResponse &&)                 = delete;
     TCrackResponse &operator=(const TCrackResponse &) = default;

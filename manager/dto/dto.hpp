@@ -8,6 +8,7 @@ namespace dto {
  */
 class TDtoIface {
 public:
+    TDtoIface()                             = default;
     TDtoIface(const TDtoIface &)            = default;
     TDtoIface(TDtoIface &&)                 = delete;
     TDtoIface &operator=(const TDtoIface &) = default;
