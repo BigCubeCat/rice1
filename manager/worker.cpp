@@ -1,4 +1,5 @@
 #include "worker.hpp"
+//
 
 
 TWorker::TWorker(QObject *parent)

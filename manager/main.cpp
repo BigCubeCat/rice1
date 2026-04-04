@@ -18,6 +18,10 @@
 #include "manager.hpp"
 #include "worker.hpp"
 
+QString getEnv(const std::string &name) {
+    const char *val = std::getenv(name.c_str());
+    return val ? QString(val) : "";
+}
 
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
@@ -26,6 +30,8 @@ int main(int argc, char *argv[]) {
     auto *thread     = new QThread();    // NOLINT
     TManager manager = TManager();
     TWorker worker   = TWorker();
+    QString urlsList = getEnv("WORKER_URLS");
+    manager.setUrls(urlsList.split(","));
     worker.moveToThread(thread);
     thread->start();
 

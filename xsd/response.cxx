@@ -646,6 +646,222 @@ namespace dto
   }
 }
 
+#include <ostream>
+#include <xsd/cxx/tree/error-handler.hxx>
+#include <xsd/cxx/xml/dom/serialization-source.hxx>
+
+namespace dto
+{
+  void
+  CrackHashWorkerResponse_ (::std::ostream& o,
+                            const ::dto::CrackHashWorkerResponse& s,
+                            const ::xml_schema::namespace_infomap& m,
+                            const ::std::string& e,
+                            ::xml_schema::flags f)
+  {
+    ::xsd::cxx::xml::auto_initializer i (
+      (f & ::xml_schema::flags::dont_initialize) == 0);
+
+    ::xml_schema::dom::unique_ptr< ::xercesc::DOMDocument > d (
+      ::dto::CrackHashWorkerResponse_ (s, m, f));
+
+    ::xsd::cxx::tree::error_handler< char > h;
+
+    ::xsd::cxx::xml::dom::ostream_format_target t (o);
+    if (!::xsd::cxx::xml::dom::serialize (t, *d, e, h, f))
+    {
+      h.throw_if_failed< ::xsd::cxx::tree::serialization< char > > ();
+    }
+  }
+
+  void
+  CrackHashWorkerResponse_ (::std::ostream& o,
+                            const ::dto::CrackHashWorkerResponse& s,
+                            ::xml_schema::error_handler& h,
+                            const ::xml_schema::namespace_infomap& m,
+                            const ::std::string& e,
+                            ::xml_schema::flags f)
+  {
+    ::xsd::cxx::xml::auto_initializer i (
+      (f & ::xml_schema::flags::dont_initialize) == 0);
+
+    ::xml_schema::dom::unique_ptr< ::xercesc::DOMDocument > d (
+      ::dto::CrackHashWorkerResponse_ (s, m, f));
+    ::xsd::cxx::xml::dom::ostream_format_target t (o);
+    if (!::xsd::cxx::xml::dom::serialize (t, *d, e, h, f))
+    {
+      throw ::xsd::cxx::tree::serialization< char > ();
+    }
+  }
+
+  void
+  CrackHashWorkerResponse_ (::std::ostream& o,
+                            const ::dto::CrackHashWorkerResponse& s,
+                            ::xercesc::DOMErrorHandler& h,
+                            const ::xml_schema::namespace_infomap& m,
+                            const ::std::string& e,
+                            ::xml_schema::flags f)
+  {
+    ::xml_schema::dom::unique_ptr< ::xercesc::DOMDocument > d (
+      ::dto::CrackHashWorkerResponse_ (s, m, f));
+    ::xsd::cxx::xml::dom::ostream_format_target t (o);
+    if (!::xsd::cxx::xml::dom::serialize (t, *d, e, h, f))
+    {
+      throw ::xsd::cxx::tree::serialization< char > ();
+    }
+  }
+
+  void
+  CrackHashWorkerResponse_ (::xercesc::XMLFormatTarget& t,
+                            const ::dto::CrackHashWorkerResponse& s,
+                            const ::xml_schema::namespace_infomap& m,
+                            const ::std::string& e,
+                            ::xml_schema::flags f)
+  {
+    ::xml_schema::dom::unique_ptr< ::xercesc::DOMDocument > d (
+      ::dto::CrackHashWorkerResponse_ (s, m, f));
+
+    ::xsd::cxx::tree::error_handler< char > h;
+
+    if (!::xsd::cxx::xml::dom::serialize (t, *d, e, h, f))
+    {
+      h.throw_if_failed< ::xsd::cxx::tree::serialization< char > > ();
+    }
+  }
+
+  void
+  CrackHashWorkerResponse_ (::xercesc::XMLFormatTarget& t,
+                            const ::dto::CrackHashWorkerResponse& s,
+                            ::xml_schema::error_handler& h,
+                            const ::xml_schema::namespace_infomap& m,
+                            const ::std::string& e,
+                            ::xml_schema::flags f)
+  {
+    ::xml_schema::dom::unique_ptr< ::xercesc::DOMDocument > d (
+      ::dto::CrackHashWorkerResponse_ (s, m, f));
+    if (!::xsd::cxx::xml::dom::serialize (t, *d, e, h, f))
+    {
+      throw ::xsd::cxx::tree::serialization< char > ();
+    }
+  }
+
+  void
+  CrackHashWorkerResponse_ (::xercesc::XMLFormatTarget& t,
+                            const ::dto::CrackHashWorkerResponse& s,
+                            ::xercesc::DOMErrorHandler& h,
+                            const ::xml_schema::namespace_infomap& m,
+                            const ::std::string& e,
+                            ::xml_schema::flags f)
+  {
+    ::xml_schema::dom::unique_ptr< ::xercesc::DOMDocument > d (
+      ::dto::CrackHashWorkerResponse_ (s, m, f));
+    if (!::xsd::cxx::xml::dom::serialize (t, *d, e, h, f))
+    {
+      throw ::xsd::cxx::tree::serialization< char > ();
+    }
+  }
+
+  void
+  CrackHashWorkerResponse_ (::xercesc::DOMDocument& d,
+                            const ::dto::CrackHashWorkerResponse& s,
+                            ::xml_schema::flags)
+  {
+    ::xercesc::DOMElement& e (*d.getDocumentElement ());
+    const ::xsd::cxx::xml::qualified_name< char > n (
+      ::xsd::cxx::xml::dom::name< char > (e));
+
+    if (n.name () == "CrackHashWorkerResponse" &&
+        n.namespace_ () == "dto")
+    {
+      e << s;
+    }
+    else
+    {
+      throw ::xsd::cxx::tree::unexpected_element < char > (
+        n.name (),
+        n.namespace_ (),
+        "CrackHashWorkerResponse",
+        "dto");
+    }
+  }
+
+  ::xml_schema::dom::unique_ptr< ::xercesc::DOMDocument >
+  CrackHashWorkerResponse_ (const ::dto::CrackHashWorkerResponse& s,
+                            const ::xml_schema::namespace_infomap& m,
+                            ::xml_schema::flags f)
+  {
+    ::xml_schema::dom::unique_ptr< ::xercesc::DOMDocument > d (
+      ::xsd::cxx::xml::dom::serialize< char > (
+        "CrackHashWorkerResponse",
+        "dto",
+        m, f));
+
+    ::dto::CrackHashWorkerResponse_ (*d, s, f);
+    return d;
+  }
+
+  void
+  operator<< (::xercesc::DOMElement& e, const CrackHashWorkerResponse& i)
+  {
+    e << static_cast< const ::xml_schema::type& > (i);
+
+    // RequestId
+    //
+    {
+      ::xercesc::DOMElement& s (
+        ::xsd::cxx::xml::dom::create_element (
+          "RequestId",
+          e));
+
+      s << i.RequestId ();
+    }
+
+    // PartNumber
+    //
+    {
+      ::xercesc::DOMElement& s (
+        ::xsd::cxx::xml::dom::create_element (
+          "PartNumber",
+          e));
+
+      s << i.PartNumber ();
+    }
+
+    // Answers
+    //
+    {
+      ::xercesc::DOMElement& s (
+        ::xsd::cxx::xml::dom::create_element (
+          "Answers",
+          e));
+
+      s << i.Answers ();
+    }
+  }
+
+  void
+  operator<< (::xercesc::DOMElement& e, const Answers& i)
+  {
+    e << static_cast< const ::xml_schema::type& > (i);
+
+    // words
+    //
+    for (Answers::words_const_iterator
+         b (i.words ().begin ()), n (i.words ().end ());
+         b != n; ++b)
+    {
+      const Answers::words_type& x (*b);
+
+      ::xercesc::DOMElement& s (
+        ::xsd::cxx::xml::dom::create_element (
+          "words",
+          e));
+
+      s << x;
+    }
+  }
+}
+
 #include <xsd/cxx/post.hxx>
 
 // Begin epilogue.

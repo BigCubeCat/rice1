@@ -1,57 +1,38 @@
 #include "manager.hpp"
 //
 #include <QJsonObject>
-#include <random>
+#include <iostream>
 
 #include <qdebug.h>
 #include <qhttpserverrequest.h>
 #include <qhttpserverresponse.h>
+#include <qlogging.h>
+
+#include "request.hxx"
+#include "utils.hpp"
+#include "worker.hpp"
 
 #include "dto/crack.hpp"
 #include "dto/status.hpp"
 
-namespace {
-QString generateUUID() {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_int_distribution<> dis(0, 15);
-
-    std::string hexChars = "0123456789abcdef";
-    std::stringstream ss;
-    ss << std::hex << std::setfill('0');
-    for (int i = 0; i < 8; i++) {
-        ss << hexChars[dis(gen)];
-    }
-    ss << "-";
-    for (int i = 0; i < 4; i++) {
-        ss << hexChars[dis(gen)];
-    }
-    ss << "-";
-    for (int i = 0; i < 4; i++) {
-        ss << hexChars[dis(gen)];
-    }
-    ss << "-";
-    for (int i = 0; i < 4; i++) {
-        ss << hexChars[dis(gen)];
-    }
-    ss << "-";
-    for (int i = 0; i < 12; i++) {
-        ss << hexChars[dis(gen)];
-    }
-    return QString::fromStdString(ss.str());
+TManager::TManager(QObject *parent)
+    : QObject(parent), m_worker(new TWorker(this)) {
+    QObject::connect(&m_timer, &QTimer::timeout, this, &TManager::onTimer);
+    m_timer.setInterval(100);
+    m_timer.start();
 }
-};    // namespace
-
-TManager::TManager(QObject *parent) : QObject(parent) { }
 
 QString TManager::addTask(const Task &task) {
     Task t = task;
     while (true) {
-        QString requestId = generateUUID();
+        QString requestId = utils::generateUUID();
         if (!m_taskMap.contains(requestId)) {
             t.requestId          = requestId;
             m_taskMap[requestId] = t;
-            m_taskQueue.push(requestId);
+            m_tasksQueue.push(requestId);
+            if (m_tasksQueue.size() == 1) {
+                m_currentTaskId = requestId;
+            }
             return requestId;
         }
     }
@@ -65,10 +46,7 @@ EStatus TManager::taskStatus(const QString &requestId) const {
 }
 
 QString TManager::currentTaskId() const {
-    if (!m_taskQueue.empty()) {
-        return m_taskQueue.front();
-    }
-    return {};
+    return m_currentTaskId;
 }
 
 QHttpServerResponse TManager::statusHandler(const QHttpServerRequest &request) {
@@ -105,11 +83,42 @@ QHttpServerResponse TManager::crackHandler(const QHttpServerRequest &request) {
     requestDto.deserialize(jsonObj);
     task.hash            = requestDto.hash();
     task.maxLength       = requestDto.maxLength();
-    task.status          = EStatus::STATUS_PENDING;
+    task.status          = EStatus::STATUS_COMPLETED;
     const auto newTaskId = addTask(task);
     dto::TCrackResponse response;
     response.setRequestId(newTaskId);
 
     QJsonDocument doc(response.serialize());
     return { doc.toJson() };
+}
+
+void TManager::onTimer() {
+    const auto value = m_taskMap.find(m_currentTaskId);
+    if (m_currentTaskId == "" || value == m_taskMap.end()) {
+        return;
+    }
+    const auto status = value->second.status;
+    if (status == EStatus::STATUS_COMPLETED
+        || status == EStatus::STATUS_FAILED) {
+        nextTask();
+        return;
+    }
+}
+
+void TManager::nextTask() {
+    if (m_tasksQueue.empty()) {
+        m_currentTaskId = "";
+        return;
+    }
+    m_currentTaskId = m_tasksQueue.front();
+    m_tasksQueue.pop();
+    const auto value = m_taskMap.find(m_currentTaskId);
+    if (value == m_taskMap.end())
+        return;
+    const auto &task = value->second;
+    const auto xmlBodys =
+        utils::task2bodys(task, static_cast<int>(m_workers.size()));
+    for (int i = 0; i < xmlBodys.size(); i++) {
+        m_worker->sendRequest(m_workers[i], xmlBodys[i]);
+    }
 }
