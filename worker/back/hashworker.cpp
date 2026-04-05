@@ -19,8 +19,8 @@ crack_hash_worker::back::THashWorker::THashWorker(
       m_alphabet(std::move(alphabet)) { }
 
 
-std::vector<std::string> crack_hash_worker::back::THashWorker::search() const {
-    std::vector<std::string> results;
+void crack_hash_worker::back::THashWorker::search() {
+    m_result.clear();
     const size_t base = m_alphabet.size();
 
     for (size_t len = 1; len <= m_max_size; ++len) {
@@ -30,7 +30,8 @@ std::vector<std::string> crack_hash_worker::back::THashWorker::search() const {
             if (__builtin_mul_overflow(
                     totalCombinations, base, &totalCombinations
                 )) {
-                return results;
+                m_is_ready = true;
+                return;
             }
         }
         uint64_t chunkSize  = totalCombinations / m_total_ranks;
@@ -41,11 +42,11 @@ std::vector<std::string> crack_hash_worker::back::THashWorker::search() const {
         for (uint64_t idx = startIndex; idx < endIndex; ++idx) {
             std::string word = indexToWord(idx, len, base);
             if (crack_hash_worker::back::md5(word) == m_target_hash) {
-                results.push_back(word);
+                m_result.push_back(word);
+                m_updated = true;
             }
         }
     }
-    return results;
 }
 
 [[nodiscard]] std::string crack_hash_worker::back::THashWorker::indexToWord(

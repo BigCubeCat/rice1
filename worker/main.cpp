@@ -1,30 +1,65 @@
 #include <QCoreApplication>
 #include <QDebug>
-#include <QFile>
-#include <QSettings>
+#include <QHttpServer>
+#include <QHttpServerRequest>
+#include <QHttpServerResponse>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
+#include <QMap>
+#include <QString>
 #include <QTcpServer>
-#include <QTcpSocket>
-#include <QThread>
-#include <QXmlStreamReader>
+#include <QTimer>
+#include <QUuid>
 
-#include "frontserver.hpp"
-#include "settings.hpp"
+#include "processor.hpp"
+#include "request.hxx"
+#include "response.hxx"
 
+QString getEnv(const std::string &name) {
+    const char *val = std::getenv(name.c_str());
+    return val ? QString(val) : "";
+}
 
 int main(int argc, char *argv[]) {
-    QCoreApplication a(argc, argv);
+    QCoreApplication app(argc, argv);
+    QHttpServer server;
 
-    QString configFile = "config.ini";
-    if (argc == 2) {
-        configFile = argv[1];
-    }
-    WorkerSettings settings = loadSettings(configFile);
+    auto *thread = new QThread();    // NOLINT
+    TProcessor processor(thread);
+    processor.moveToThread(thread);
 
-    TFrontServer server;
-    if (!server.listen(QHostAddress::AnyIPv4, settings.port)) {
-        qFatal("Cannot start server: %s", qPrintable(server.errorString()));
-        return 1;
+    QString urlsList = getEnv("MANAGER_URL");
+    thread->start();
+
+    server.route("/", []() { return "Hello world"; });
+    server.route(
+        "/internal/api/manager/hash/crack/request",
+        QHttpServerRequest::Method::Patch,
+        [&](const QHttpServerRequest &request) {
+            const auto body = request.body();
+            processor.addTask(utils::body2worker(body));
+            return "";
+        }
+    );
+
+    auto tcpserver = std::make_unique<QTcpServer>();
+    if (!tcpserver->listen(QHostAddress::Any, 8080)
+        || !server.bind(tcpserver.get())) {
+        qWarning() << QCoreApplication::translate(
+            "QHttpServerExample", "Server failed to listen on a port."
+        );
+        return -1;
     }
-    qInfo() << "HTTP server listening on port" << settings.port;
+    auto port = tcpserver->serverPort();
+
+    qInfo().noquote() << QCoreApplication::translate(
+                             "QHttpServerExample",
+                             "Running on http://127.0.0.1:%1/"
+                             "(Press CTRL+C to quit)"
+    )
+                             .arg(port);
+
     return QCoreApplication::exec();
 }

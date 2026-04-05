@@ -1,4 +1,4 @@
-qt_add_library(BackLib
+add_library(BackLib
     md5.cpp
     md5.hpp
     hashworker.hpp
@@ -8,5 +8,5 @@ qt_add_library(BackLib
 target_link_libraries(BackLib PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
 if (BUILD_TESTING)
-    add_subdirectory(tests)
+  add_subdirectory(tests)
 endif()

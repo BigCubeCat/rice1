@@ -4,10 +4,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_subdirectory(back)
 
 qt_add_executable(CrackHashWorker
-  frontserver.hpp
-  httpconnection.hpp
-  settings.hpp
   main.cpp
+  processor.hpp
+  processor.cpp
 )
 
-target_link_libraries(CrackHashWorker BackLib)
+target_link_libraries(CrackHashWorker PRIVATE
+  Qt6::Core
+  Qt6::HttpServer
+  Qt6::Xml
+  Qt6::Network
+  BackLib
+  DtoLib
+)
