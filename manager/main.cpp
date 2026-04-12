@@ -17,12 +17,9 @@
 #include <qhttpserverrequest.h>
 
 #include "manager.hpp"
+#include "utils.hpp"
 #include "worker.hpp"
 
-QString getEnv(const std::string &name) {
-    const char *val = std::getenv(name.c_str());
-    return val ? QString(val) : "";
-}
 
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
@@ -30,9 +27,10 @@ int main(int argc, char *argv[]) {
 
     auto *thread     = new QThread();    // NOLINT
     TManager manager = TManager();
-    TWorker worker   = TWorker();
-    QString urlsList = getEnv("WORKER_URLS");
-    manager.setUrls(urlsList.split(","));
+    TNetworkWorker worker;
+    const auto urlsList = utils::getEnv("WORKER_URLS");
+    QString urlsListStr = urlsList.has_value() ? urlsList.value() : "";
+    manager.setUrls(urlsListStr.split(","));
     worker.moveToThread(thread);
     thread->start();
 
@@ -57,12 +55,7 @@ int main(int argc, char *argv[]) {
         "/internal/api/manager/hash/crack/request",
         QHttpServerRequest::Method::Patch,
         [&](const QHttpServerRequest &request) {
-            const auto body = request.body();
-            qDebug() << "====";
-            qDebug() << body;
-            qDebug() << "====";
-            // TODO
-            return "";
+            return manager.internalHandler(request);
         }
     );
 

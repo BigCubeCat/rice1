@@ -14,21 +14,25 @@
 #include <QUuid>
 
 #include "processor.hpp"
+#include "request.hxx"
+#include "response.hxx"
+#include "utils.hpp"
 
-QString getEnv(const std::string &name) {
-    const char *val = std::getenv(name.c_str());
-    return val ? QString(val) : "";
-}
 
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
     QHttpServer server;
 
     auto *thread = new QThread();    // NOLINT
+    TNetworkWorker worker;
+    const auto url    = utils::getEnv("MANAGER_URL");
+    QString urlString = url.has_value() ? url.value() : "";
     TProcessor processor(thread);
-    processor.moveToThread(thread);
+    processor.setUrls(urlsList.split(","));
+    worker.moveToThread(thread);
+    thread->start();
 
-    QString urlsList = getEnv("MANAGER_URL");
+
     thread->start();
 
     server.route("/", []() { return "Hello world"; });

@@ -26,10 +26,12 @@ public:
     QString currentTaskId() const;
     void setUrls(const QStringList &urls) {
         m_workers = urls;
+        m_currentParts.resize(urls.size());
     }
 
     QHttpServerResponse statusHandler(const QHttpServerRequest &request);
     QHttpServerResponse crackHandler(const QHttpServerRequest &request);
+    QHttpServerResponse internalHandler(const QHttpServerRequest &request);
 
     ~TManager() override = default;
 
@@ -41,10 +43,11 @@ private:
     std::unordered_map<QString, Task> m_taskMap;
     std::queue<QString> m_tasksQueue;
     QString m_currentTaskId;
-    TWorker *m_worker = nullptr;
+    TNetworkWorker *m_worker = nullptr;
     QTimer m_timer;
     /// ссылки на активных воркеров
     QStringList m_workers;
+    std::vector<TaskPart> m_currentParts;
 
     void nextTask();
 };
