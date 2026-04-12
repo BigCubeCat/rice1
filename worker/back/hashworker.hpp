@@ -17,13 +17,14 @@ public:
     void search();
 
     [[nodiscard]] bool isUpdated() const {
-        return m_updated.load();
+        return m_updated;
     }
     [[nodiscard]] bool isReady() const {
-        return m_is_ready.load();
+        return m_is_ready;
     }
+
     [[nodiscard]] const std::vector<std::string> &getResult() {
-        m_updated.store(true);
+        m_updated = true;
         return m_result;
     }
 
@@ -34,8 +35,8 @@ private:
     size_t m_max_size;
     std::string m_alphabet;
     std::vector<std::string> m_result;
-    std::atomic<bool> m_is_ready = false;
-    std::atomic<bool> m_updated  = false;
+    bool m_is_ready;
+    bool m_updated;
 
     /// Преобразование индекса в слово
     [[nodiscard]] std::string

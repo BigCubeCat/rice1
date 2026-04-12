@@ -8,3 +8,10 @@ find_package(Qt6 REQUIRED COMPONENTS Core Network HttpServer Xml)
 add_subdirectory(xsd)
 add_subdirectory(worker)
 add_subdirectory(manager)
+
+install(
+TARGETS 
+  CrackManager CrackHashWorker
+RUNTIME DESTINATION
+  bin
+)
