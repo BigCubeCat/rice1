@@ -3,6 +3,7 @@
 #include <QHttpServer>
 #include <QObject>
 #include <QTimer>
+#include <algorithm>
 #include <queue>
 
 #include <qhttpserverrequest.h>
@@ -26,7 +27,8 @@ public:
     QString currentTaskId() const;
     void setUrls(const QStringList &urls) {
         m_workers = urls;
-        m_currentParts.resize(urls.size());
+        m_currentParts.resize(urls.size(), TaskPart {});
+        m_done.resize(urls.size(), false);
     }
 
     QHttpServerResponse statusHandler(const QHttpServerRequest &request);
@@ -48,6 +50,7 @@ private:
     /// ссылки на активных воркеров
     QStringList m_workers;
     std::vector<TaskPart> m_currentParts;
+    std::vector<bool> m_done;
 
     void nextTask();
 };

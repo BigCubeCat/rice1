@@ -1,7 +1,9 @@
 #include "utils.hpp"
 //
+#include <QString>
 #include <iomanip>
 #include <memory>
+#include <optional>
 #include <random>
 #include <sstream>
 #include <string>
@@ -48,14 +50,14 @@ TaskPart utils::body2taskPart(const QString &body) {
     xercesc::XMLPlatformUtils::Initialize();
     std::istringstream iss(body.toStdString());
     std::unique_ptr<dto::CrackHashWorkerResponse> res(
-        dto::CrackHashWorkerResponse__(iss, xml_schema::flags::dont_validate)
+        dto::CrackHashWorkerResponse_(iss, xml_schema::flags::dont_validate)
     );
     TaskPart tp;
     tp.partNumber    = res->PartNumber();
     const auto words = res->Answers().words();
     tp.answers       = {};
     for (const auto &word : words) {
-        tp.answers.push_back(word);
+        tp.answers.push_back(word.data());
     }
     xercesc::XMLPlatformUtils::Terminate();
     return tp;
@@ -93,5 +95,8 @@ QString utils::generateUUID() {
 
 std::optional<QString> utils::getEnv(const std::string &name) {
     const char *val = std::getenv(name.c_str());
-    return val ? QString(val) : std::nullopt;
+    if (!val)
+        return std::nullopt;
+
+    return QString::fromUtf8(val);
 }

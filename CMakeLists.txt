@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 
 find_package(OpenSSL REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS Core Network HttpServer Xml)
+find_package(XercesC REQUIRED)
 
 
 add_subdirectory(xsd)

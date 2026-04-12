@@ -1,6 +1,7 @@
 #include "manager.hpp"
 //
 #include <QJsonObject>
+#include <algorithm>
 #include <iostream>
 
 #include <qdebug.h>
@@ -83,7 +84,7 @@ QHttpServerResponse TManager::crackHandler(const QHttpServerRequest &request) {
     requestDto.deserialize(jsonObj);
     task.hash            = requestDto.hash();
     task.maxLength       = requestDto.maxLength();
-    task.status          = EStatus::STATUS_COMPLETED;
+    task.status          = EStatus::STATUS_PENDING;
     const auto newTaskId = addTask(task);
     dto::TCrackResponse response;
     response.setRequestId(newTaskId);
@@ -97,6 +98,15 @@ TManager::internalHandler(const QHttpServerRequest &request) {
     const auto body               = request.body();
     const auto tp                 = utils::body2taskPart(body);
     m_currentParts[tp.partNumber] = tp;
+    m_done[tp.partNumber]         = true;
+    if (std::all_of(m_done.begin(), m_done.end(), [](bool b) { return b; })) {
+        // ответ готов
+        QStringList answers;
+        for (const auto &part : m_currentParts)
+            answers += part.answers;
+        m_taskMap[m_currentTaskId].answers = answers;
+        m_taskMap[m_currentTaskId].status  = STATUS_COMPLETED;
+    }
     return "";
 }
 
@@ -120,6 +130,8 @@ void TManager::nextTask() {
     }
     m_currentTaskId = m_tasksQueue.front();
     m_tasksQueue.pop();
+    std::fill(m_currentParts.begin(), m_currentParts.end(), TaskPart {});
+    std::fill(m_done.begin(), m_done.end(), false);
     const auto value = m_taskMap.find(m_currentTaskId);
     if (value == m_taskMap.end())
         return;

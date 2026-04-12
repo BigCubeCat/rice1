@@ -1,8 +1,9 @@
 project(CommonLib LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTOMOC ON)
 
-add_library(${PROJECT_NAME} SHARED
+qt_add_library(${PROJECT_NAME} STATIC
     task.hpp
     utils.cpp
     utils.hpp

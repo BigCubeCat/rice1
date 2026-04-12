@@ -12,6 +12,7 @@
 #include <QTcpServer>
 #include <QTimer>
 #include <QUuid>
+#include <iostream>
 
 #include <memory.h>
 #include <qhttpserverrequest.h>
@@ -39,7 +40,7 @@ int main(int argc, char *argv[]) {
         "/api/hash/crack",
         QHttpServerRequest::Method::Post,
         [&](const QHttpServerRequest &request) {
-            qInfo() << "crack!";
+            std::cout << "crack!";
             return manager.crackHandler(request);
         }
     );
@@ -47,7 +48,7 @@ int main(int argc, char *argv[]) {
         "/api/hash/status",
         QHttpServerRequest::Method::Get,
         [&](const QHttpServerRequest &request) {
-            qInfo() << "status!";
+            std::cout << "status!";
             return manager.statusHandler(request);
         }
     );

@@ -27,12 +27,9 @@ int main(int argc, char *argv[]) {
     TNetworkWorker worker;
     const auto url    = utils::getEnv("MANAGER_URL");
     QString urlString = url.has_value() ? url.value() : "";
-    TProcessor processor(thread);
-    processor.setUrls(urlsList.split(","));
+    TProcessor processor(urlString);
+
     worker.moveToThread(thread);
-    thread->start();
-
-
     thread->start();
 
     server.route("/", []() { return "Hello world"; });
@@ -41,7 +38,7 @@ int main(int argc, char *argv[]) {
         QHttpServerRequest::Method::Post,
         [&](const QHttpServerRequest &request) {
             const auto body = request.body();
-            QDebug() << "crack task: " << body;
+            qInfo() << "crack task: " << body;
             processor.addTask(utils::body2worker(body));
             return "";
         }
