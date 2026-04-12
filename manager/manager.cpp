@@ -99,6 +99,7 @@ TManager::internalHandler(const QHttpServerRequest &request) {
     const auto tp                 = utils::body2taskPart(body);
     m_currentParts[tp.partNumber] = tp;
     m_done[tp.partNumber]         = true;
+    qInfo().quote() << "got part " << tp.partNumber;
     if (std::all_of(m_done.begin(), m_done.end(), [](bool b) { return b; })) {
         // ответ готов
         QStringList answers;
@@ -113,6 +114,7 @@ TManager::internalHandler(const QHttpServerRequest &request) {
 void TManager::onTimer() {
     const auto value = m_taskMap.find(m_currentTaskId);
     if (m_currentTaskId == "" || value == m_taskMap.end()) {
+        nextTask();
         return;
     }
     const auto status = value->second.status;
@@ -124,10 +126,12 @@ void TManager::onTimer() {
 }
 
 void TManager::nextTask() {
+    qInfo().noquote() << "nextTask()";
     if (m_tasksQueue.empty()) {
         m_currentTaskId = "";
         return;
     }
+    qInfo().noquote() << "new task = " << m_currentTaskId;
     m_currentTaskId = m_tasksQueue.front();
     m_tasksQueue.pop();
     std::fill(m_currentParts.begin(), m_currentParts.end(), TaskPart {});
@@ -139,6 +143,7 @@ void TManager::nextTask() {
     const auto xmlBodys =
         utils::task2bodys(task, static_cast<int>(m_workers.size()));
     for (int i = 0; i < xmlBodys.size(); i++) {
+        qInfo().noquote() << m_workers[i] << " " << xmlBodys[i];
         m_worker->sendRequest(m_workers[i], xmlBodys[i]);
     }
 }

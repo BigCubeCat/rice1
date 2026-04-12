@@ -1,3 +1,4 @@
 .cache
 build
 deploy/bin
+compile_commands.json

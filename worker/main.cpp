@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
         QHttpServerRequest::Method::Post,
         [&](const QHttpServerRequest &request) {
             const auto body = request.body();
-            qInfo() << "crack task: " << body;
+            qInfo().noquote() << "crack task: " << body;
             processor.addTask(utils::body2worker(body));
             return "";
         }

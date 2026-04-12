@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
         "/api/hash/crack",
         QHttpServerRequest::Method::Post,
         [&](const QHttpServerRequest &request) {
-            std::cout << "crack!";
+            qInfo().noquote() << "crack!";
             return manager.crackHandler(request);
         }
     );
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
         "/api/hash/status",
         QHttpServerRequest::Method::Get,
         [&](const QHttpServerRequest &request) {
-            std::cout << "status!";
+            qInfo().noquote() << "status!";
             return manager.statusHandler(request);
         }
     );

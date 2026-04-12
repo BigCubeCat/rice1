@@ -8,6 +8,10 @@ RUN pacman -Sy --noconfirm \
     libxcb \
     && pacman -Scc --noconfirm
 
+ENV QT_LOGGING_RULES="*=true"
+ENV QT_FORCE_STDERR_LOGGING=1
+
+
 WORKDIR /app
 COPY ./deploy/bin/CrackManager /app/app
 
