@@ -7,6 +7,7 @@
 #include <string>
 
 #include "request.hxx"
+#include "response.hxx"
 
 
 QString utils::task2body(const Task &task, int size, int rank) {
@@ -19,7 +20,6 @@ QString utils::task2body(const Task &task, int size, int rank) {
         }
         return std::move(alphabet);
     };
-    xercesc::XMLPlatformUtils::Initialize();
     auto alphabet = makeAlphabet();
     dto::CrackHashManagerRequest req(
         task.requestId.toUtf8().data(),
@@ -42,6 +42,23 @@ QStringList utils::task2bodys(const Task &task, int size) {
         bodys << task2body(task, size, i);
     }
     return bodys;
+}
+
+TaskPart utils::body2taskPart(const QString &body) {
+    xercesc::XMLPlatformUtils::Initialize();
+    std::istringstream iss(body.toStdString());
+    std::unique_ptr<dto::CrackHashWorkerResponse> res(
+        dto::CrackHashWorkerResponse__(iss, xml_schema::flags::dont_validate)
+    );
+    TaskPart tp;
+    tp.partNumber    = res->PartNumber();
+    const auto words = res->Answers().words();
+    tp.answers       = {};
+    for (const auto &word : words) {
+        tp.answers.push_back(word);
+    }
+    xercesc::XMLPlatformUtils::Terminate();
+    return tp;
 }
 
 QString utils::generateUUID() {
@@ -72,4 +89,9 @@ QString utils::generateUUID() {
         ss << hexChars[dis(gen)];
     }
     return QString::fromStdString(ss.str());
+}
+
+std::optional<QString> utils::getEnv(const std::string &name) {
+    const char *val = std::getenv(name.c_str());
+    return val ? QString(val) : std::nullopt;
 }

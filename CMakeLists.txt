@@ -6,5 +6,6 @@ find_package(Qt6 REQUIRED COMPONENTS Core Network HttpServer Xml)
 
 
 add_subdirectory(xsd)
+add_subdirectory(common)
 add_subdirectory(worker)
 add_subdirectory(manager)

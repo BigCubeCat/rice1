@@ -16,4 +16,5 @@ target_link_libraries(CrackHashWorker PRIVATE
   Qt6::Network
   BackLib
   DtoLib
+  CommonLib
 )

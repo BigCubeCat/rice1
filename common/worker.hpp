@@ -6,14 +6,15 @@
 #include <QObject>
 #include <QUrl>
 
-class TWorker : public QObject {
+class TNetworkWorker : public QObject {
     Q_OBJECT
 public:
-    explicit TWorker(QObject *parent = nullptr);
+    explicit TNetworkWorker(QObject *parent = nullptr);
 
 private:
 public slots:
     void sendRequest(const QString &url, const QString &xmlData);
+    void sendPatchRequest(const QString &url, const QString &xmlData);
     void getRequest(const QString &url);
 signals:
     void responseReceived(const QString &xml);

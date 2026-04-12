@@ -16,7 +16,7 @@
 #include "dto/status.hpp"
 
 TManager::TManager(QObject *parent)
-    : QObject(parent), m_worker(new TWorker(this)) {
+    : QObject(parent), m_worker(new TNetworkWorker(this)) {
     QObject::connect(&m_timer, &QTimer::timeout, this, &TManager::onTimer);
     m_timer.setInterval(100);
     m_timer.start();
@@ -90,6 +90,14 @@ QHttpServerResponse TManager::crackHandler(const QHttpServerRequest &request) {
 
     QJsonDocument doc(response.serialize());
     return { doc.toJson() };
+}
+
+QHttpServerResponse
+TManager::internalHandler(const QHttpServerRequest &request) {
+    const auto body               = request.body();
+    const auto tp                 = utils::body2taskPart(body);
+    m_currentParts[tp.partNumber] = tp;
+    return "";
 }
 
 void TManager::onTimer() {

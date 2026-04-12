@@ -8,14 +8,9 @@ qt_add_executable(CrackManager
     main.cpp
     manager.hpp
     manager.cpp
-    worker.hpp
-    worker.cpp
-    task.hpp
     dto/dto.hpp
     dto/status.hpp
     dto/crack.hpp
-    utils.hpp
-    utils.cpp
 )
 
 target_link_libraries(CrackManager PUBLIC
@@ -24,4 +19,5 @@ target_link_libraries(CrackManager PUBLIC
     Qt6::Xml
     Qt6::Network
     DtoLib
+    CommonLib
 )
