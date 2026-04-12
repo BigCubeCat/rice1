@@ -37,10 +37,11 @@ int main(int argc, char *argv[]) {
 
     server.route("/", []() { return "Hello world"; });
     server.route(
-        "/internal/api/manager/hash/crack/request",
-        QHttpServerRequest::Method::Patch,
+        "/internal/api/worker/hash/crack/task",
+        QHttpServerRequest::Method::Post,
         [&](const QHttpServerRequest &request) {
             const auto body = request.body();
+            QDebug() << "crack task: " << body;
             processor.addTask(utils::body2worker(body));
             return "";
         }

@@ -1,14 +1,15 @@
 #pragma once
 
-#include <QTimer>
 #include <queue>
 
 #include <qobject.h>
+#include <qtimer.h>
 #include <qtmetamacros.h>
 
 #include "worker.hpp"
 
 #include "back/hashworker.hpp"
+
 
 
 namespace utils {

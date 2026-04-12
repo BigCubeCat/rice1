@@ -14,6 +14,7 @@
 #include <QUuid>
 
 #include <memory.h>
+#include <qhttpserverrequest.h>
 
 #include "manager.hpp"
 #include "utils.hpp"
@@ -38,6 +39,7 @@ int main(int argc, char *argv[]) {
         "/api/hash/crack",
         QHttpServerRequest::Method::Post,
         [&](const QHttpServerRequest &request) {
+            qInfo() << "crack!";
             return manager.crackHandler(request);
         }
     );
@@ -45,6 +47,7 @@ int main(int argc, char *argv[]) {
         "/api/hash/status",
         QHttpServerRequest::Method::Get,
         [&](const QHttpServerRequest &request) {
+            qInfo() << "status!";
             return manager.statusHandler(request);
         }
     );
