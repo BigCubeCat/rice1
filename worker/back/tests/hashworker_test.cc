@@ -1,3 +1,4 @@
+#include <chrono>
 #include <set>
 #include <string>
 #include <thread>
@@ -6,6 +7,7 @@
 
 #include "hashworker.hpp"
 
+using namespace std::chrono_literals;
 using namespace crack_hash_worker::back;
 
 // ============================================================================
@@ -20,8 +22,11 @@ TEST(HashWorkerTest, MD5KnownValues) {
 
     // "hello" -> 5d41402abc4b2a76b9719d911017c592
     std::string target = "5d41402abc4b2a76b9719d911017c592";
-    THashWorker worker(target, 0, 1, 5, "abcdefghijklmnopqrstuvwxyz");
-    auto results = worker.search();
+    THashWorker worker("", target, 0, 1, 5, "abcdefghijklmnopqrstuvwxyz");
+    worker.search();
+
+    std::this_thread::sleep_for(1s);
+    const auto results = worker.getResult();
 
     ASSERT_EQ(results.size(), 1);
     EXPECT_EQ(results[0], "hello");
@@ -32,12 +37,20 @@ TEST(HashWorkerTest, MD5CaseInsensitive) {
     std::string targetLower = "5d41402abc4b2a76b9719d911017c592";
     std::string targetUpper = "5D41402ABC4B2A76B9719D911017C592";
 
-    THashWorker workerLower(targetLower, 0, 1, 5, "abcdefghijklmnopqrstuvwxyz");
-    THashWorker workerUpper(targetUpper, 0, 1, 5, "abcdefghijklmnopqrstuvwxyz");
+    THashWorker workerLower(
+        "", targetLower, 0, 1, 5, "abcdefghijklmnopqrstuvwxyz"
+    );
+    THashWorker workerUpper(
+        "", targetUpper, 0, 1, 5, "abcdefghijklmnopqrstuvwxyz"
+    );
 
-    auto resLower = workerLower.search();
-    auto resUpper = workerUpper.search();
+    workerLower.search();
+    workerUpper.search();
 
+    std::this_thread::sleep_for(1s);
+
+    auto resLower = workerLower.getResult();
+    auto resUpper = workerUpper.getResult();
     ASSERT_EQ(resLower.size(), 1);
     ASSERT_EQ(resUpper.size(), 1);
     EXPECT_EQ(resLower[0], resUpper[0]);
@@ -55,8 +68,10 @@ TEST(HashWorkerTest, DistributedSearchCoverage) {
     int totalWorkers     = 4;
 
     // 1. Запускаем однопоточный режим (эталон)
-    THashWorker singleWorker(target, 0, 1, maxLen, alphabet);
-    auto singleResults = singleWorker.search();
+    THashWorker singleWorker("", target, 0, 1, maxLen, alphabet);
+    singleWorker.search();
+    std::this_thread::sleep_for(1s);
+    auto singleResults = singleWorker.getResult();
 
     // 2. Запускаем распределенный режим
     std::vector<std::vector<std::string>> allResults(totalWorkers);
@@ -66,8 +81,12 @@ TEST(HashWorkerTest, DistributedSearchCoverage) {
     for (int i = 0; i < totalWorkers; ++i) {
         threads.emplace_back(
             [&allResults, i, &target, totalWorkers, maxLen, &alphabet]() {
-                THashWorker worker(target, i, totalWorkers, maxLen, alphabet);
-                allResults[i] = worker.search();
+                THashWorker worker(
+                    "", target, i, totalWorkers, maxLen, alphabet
+                );
+                worker.search();
+                std::this_thread::sleep_for(1s);
+                allResults[i] = worker.getResult();
             }
         );
     }
@@ -109,8 +128,12 @@ TEST(HashWorkerTest, DistributedSearchNoOverlap) {
     for (int i = 0; i < totalWorkers; ++i) {
         threads.emplace_back(
             [&allResults, i, &target, totalWorkers, maxLen, &alphabet]() {
-                THashWorker worker(target, i, totalWorkers, maxLen, alphabet);
-                allResults[i] = worker.search();
+                THashWorker worker(
+                    "", target, i, totalWorkers, maxLen, alphabet
+                );
+                worker.search();
+                std::this_thread::sleep_for(1s);
+                allResults[i] = worker.getResult();
             }
         );
     }
@@ -140,29 +163,37 @@ TEST(HashWorkerTest, MultipleMatches) {
     std::string target = "0cc175b9c0f1b6a831c399e269772661";
 
     // Воркер 0 должен найти "a" (это первая комбинация)
-    THashWorker worker0(target, 0, 2, 1, "abc");
-    auto res0 = worker0.search();
+    THashWorker worker0("", target, 0, 2, 1, "abc");
+    worker0.search();
+    std::this_thread::sleep_for(1s);
+    auto res0 = worker0.getResult();
     EXPECT_EQ(res0.size(), 1);
     EXPECT_EQ(res0[0], "a");
 
     // Воркер 1 не должен найти "a" (оно в диапазоне воркера 0)
-    THashWorker worker1(target, 1, 2, 1, "abc");
-    auto res1 = worker1.search();
+    THashWorker worker1("", target, 1, 2, 1, "abc");
+    worker1.search();
+    std::this_thread::sleep_for(1s);
+    auto res1 = worker1.getResult();
     EXPECT_EQ(res1.size(), 0);
 }
 
 TEST(HashWorkerTest, MaxSizeZero) {
     // Если максимальная длина 0, поиск не должен выполняться
     std::string target = "00000000000000000000000000000000";
-    THashWorker worker(target, 0, 1, 0, "abc");
-    auto results = worker.search();
+    THashWorker worker("", target, 0, 1, 0, "abc");
+    worker.search();
+    std::this_thread::sleep_for(1s);
+    auto results = worker.getResult();
     EXPECT_TRUE(results.empty());
 }
 
 TEST(HashWorkerTest, NoMatchFound) {
     // Хэш, для которого точно нет слова в заданном алфавите и длине
     std::string target = "ffffffffffffffffffffffffffffffff";
-    THashWorker worker(target, 0, 1, 3, "a");    // Только слово "aaa"
-    auto results = worker.search();
+    THashWorker worker("", target, 0, 1, 3, "a");    // Только слово "aaa"
+    worker.search();
+    std::this_thread::sleep_for(1s);
+    auto results = worker.getResult();
     EXPECT_TRUE(results.empty());
 }

@@ -8,8 +8,20 @@
 #include <sstream>
 #include <string>
 
+#include <qdebug.h>
+
 #include "request.hxx"
 #include "response.hxx"
+
+static dto::Answers::words_sequence
+toWordsSequence(const QVector<QString> &qtWords) {
+    dto::Answers::words_sequence result;
+    for (const QString &word : qtWords) {
+        // QString → std::string → xml_schema::string
+        result.push_back(word.toStdString());
+    }
+    return result;
+}
 
 
 QString utils::task2body(const Task &task, int size, int rank) {
@@ -61,6 +73,18 @@ TaskPart utils::body2taskPart(const QString &body) {
     }
     xercesc::XMLPlatformUtils::Terminate();
     return tp;
+}
+
+QString utils::taskPart2body(const TaskPart &tp, const std::string &id) {
+    dto::Answers answers;
+    answers.words() = toWordsSequence(tp.answers);
+    QString rid     = QString::fromStdString(id);
+    dto::CrackHashWorkerResponse response("", tp.partNumber, answers);
+
+    std::ostringstream oss;
+    dto::CrackHashWorkerResponse_(oss, response);
+    xercesc::XMLPlatformUtils::Terminate();
+    return QString::fromStdString(oss.str());
 }
 
 QString utils::generateUUID() {

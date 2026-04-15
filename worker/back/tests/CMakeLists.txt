@@ -10,7 +10,7 @@ target_link_libraries(back_tests
     PRIVATE
         GTest::gtest
         GTest::gtest_main
-        back_lib
+        BackLib
 )
 
 target_include_directories(back_tests

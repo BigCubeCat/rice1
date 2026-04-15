@@ -56,6 +56,7 @@ int main(int argc, char *argv[]) {
         "/internal/api/manager/hash/crack/request",
         QHttpServerRequest::Method::Patch,
         [&](const QHttpServerRequest &request) {
+            qInfo() << request.body();
             return manager.internalHandler(request);
         }
     );

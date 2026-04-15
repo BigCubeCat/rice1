@@ -6,13 +6,15 @@
 
 
 crack_hash_worker::back::THashWorker::THashWorker(
+    const std::string &id,
     const std::string &target_hash,
     int rank,
     int total_ranks,
     size_t max_size,
-    std::string alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+    std::string alphabet
 )
-    : m_target_hash(toLower(target_hash)),
+    : m_id(id),
+      m_target_hash(toLower(target_hash)),
       m_rank(rank),
       m_total_ranks(total_ranks),
       m_max_size(max_size),
@@ -47,6 +49,7 @@ void crack_hash_worker::back::THashWorker::search() {
             }
         }
     }
+    m_is_ready = true;
 }
 
 [[nodiscard]] std::string crack_hash_worker::back::THashWorker::indexToWord(

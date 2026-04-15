@@ -7,11 +7,12 @@ namespace crack_hash_worker::back {
 class THashWorker {
 public:
     THashWorker(
+        const std::string &id,
         const std::string &target_hash,
         int rank,
         int total_ranks,
         size_t max_size,
-        std::string alphabet
+        std::string alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
     );
 
     void search();
@@ -28,15 +29,25 @@ public:
         return m_result;
     }
 
+    [[nodiscard]] int rank() const {
+        return m_rank;
+    }
+
+    [[nodiscard]] std::string id() const {
+        return m_id;
+    }
+
+
 private:
+    std::string m_id;
     std::string m_target_hash;
     int m_rank;
     int m_total_ranks;
     size_t m_max_size;
     std::string m_alphabet;
     std::vector<std::string> m_result;
-    bool m_is_ready;
-    bool m_updated;
+    bool m_is_ready = false;
+    bool m_updated  = false;
 
     /// Преобразование индекса в слово
     [[nodiscard]] std::string

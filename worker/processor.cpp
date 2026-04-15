@@ -5,8 +5,12 @@
 #include <sstream>
 #include <string>
 
+#include <qlogging.h>
+
 #include "request.hxx"
 #include "response.hxx"
+#include "task.hpp"
+#include "utils.hpp"
 
 
 TProcessor::TProcessor(QString url, QObject *parent)
@@ -28,8 +32,18 @@ void TProcessor::process() {
         auto isReady = m_current->isReady();
         if (isReady) {
             m_queue.pop();
-            // TODO: send request
-            m_worker->sendPatchRequest(m_managerUrl, "");
+            TaskPart tp;
+            tp.partNumber = m_current->rank();
+            QStringList data;
+            data.reserve(static_cast<int>(result.size()));
+            for (const auto &word : result) {
+                data.push_back(QString::fromStdString(word));
+            }
+            const auto body = utils::taskPart2body(tp, m_current->id());
+            qDebug() << tp.answers.size();
+            m_worker->sendPatchRequest(
+                m_managerUrl + "/internal/api/manager/hash/crack/request", body
+            );
         }
     }
     if (m_queue.empty()) {
@@ -41,12 +55,12 @@ void TProcessor::process() {
 }
 
 crack_hash_worker::back::THashWorker utils::body2worker(const QString &body) {
+    qDebug() << "body2worker";
     xercesc::XMLPlatformUtils::Initialize();
     std::istringstream iss(body.toStdString());
     std::unique_ptr<dto::CrackHashManagerRequest> req(
         dto::CrackHashManagerRequest_(iss, xml_schema::flags::dont_validate)
     );
-
     std::string alphabetString;
     auto symbols = req->Alphabet().symbols();
     alphabetString.reserve(symbols.size());
@@ -55,13 +69,14 @@ crack_hash_worker::back::THashWorker utils::body2worker(const QString &body) {
     }
     crack_hash_worker::back::THashWorker worker(
         req->RequestId(),
+        req->Hash(),
         req->PartNumber(),
         req->PartCount(),
-        req->MaxLength(),
-        alphabetString
+        req->MaxLength()
     );
 
     xercesc::XMLPlatformUtils::Terminate();
+    qDebug() << "==";
 
     return worker;
 }
