@@ -64,7 +64,6 @@ QHttpServerResponse TManager::statusHandler(const QHttpServerRequest &request) {
         status.setData(task.answers);
     }
     QJsonObject json = status.serialize();
-    qDebug() << json;
     QJsonDocument doc(json);
     return { doc.toJson() };
 }

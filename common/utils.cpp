@@ -27,14 +27,15 @@ toWordsSequence(const QVector<QString> &qtWords) {
 QString utils::task2body(const Task &task, int size, int rank) {
     xercesc::XMLPlatformUtils::Initialize();
     static auto makeAlphabet = []() {
-        auto alphabet = std::make_unique<dto::Alphabet>();
+        dto::Alphabet::symbols_sequence result;
         for (int i = 97; i < 123; ++i) {
             std::array<char, 1> a = { static_cast<char>(i) };
-            alphabet->symbols().push_back(a.data());
+            result.push_back(a.data());
         }
-        return std::move(alphabet);
+        return result;
     };
-    auto alphabet = makeAlphabet();
+    auto alphabet       = std::make_unique<dto::Alphabet>();
+    alphabet->symbols() = makeAlphabet();
     dto::CrackHashManagerRequest req(
         task.requestId.toUtf8().data(),
         rank,

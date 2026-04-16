@@ -8,26 +8,22 @@
 
 
 crack_hash_worker::back::THashWorker::THashWorker(
-    const std::string &id,
+    std::string id,
     const std::string &target_hash,
     int rank,
     int total_ranks,
     size_t max_size,
     std::string alphabet
 )
-    : m_id(id),
+    : m_id(std::move(id)),
       m_target_hash(toLower(target_hash)),
       m_rank(rank),
       m_total_ranks(total_ranks),
       m_max_size(max_size),
       m_alphabet(std::move(alphabet)) { }
 
-
 void crack_hash_worker::back::THashWorker::search() {
     const size_t base = m_alphabet.size();
-    qDebug() << "search...\n";
-    qDebug() << "alphabet=" << m_alphabet;
-    qDebug() << "max_size=" << m_max_size;
 
     for (size_t len = 1; len <= m_max_size; ++len) {
         uint64_t totalCombinations = 1;
@@ -36,7 +32,6 @@ void crack_hash_worker::back::THashWorker::search() {
             if (__builtin_mul_overflow(
                     totalCombinations, base, &totalCombinations
                 )) {
-                m_updated  = true;
                 m_is_ready = true;
                 return;
             }
@@ -48,16 +43,9 @@ void crack_hash_worker::back::THashWorker::search() {
                                   (m_rank + 1) * chunkSize;
         for (uint64_t idx = startIndex; idx < endIndex; ++idx) {
             std::string word = indexToWord(idx, len, base);
-            qDebug() << "word = " << word;
-            const auto h = crack_hash_worker::back::md5(word);
-            qDebug() << h;
-            qDebug() << crack_hash_worker::back::md5(word);
-            qDebug() << m_target_hash;
-            qDebug() << "===";
+            const auto h     = crack_hash_worker::back::md5(word);
             if (h == m_target_hash) {
-                qDebug() << "got word == " << word;
                 m_result.push_back(word);
-                m_updated = true;
             }
         }
     }

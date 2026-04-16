@@ -8,12 +8,12 @@ namespace crack_hash_worker::back {
 class THashWorker {
 public:
     THashWorker(
-        const std::string &id,
+        std::string id,
         const std::string &target_hash,
         int rank,
         int total_ranks,
         size_t max_size,
-        std::string alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+        std::string alphabet = "abcd"
     );
 
     void search();
@@ -26,7 +26,6 @@ public:
     }
 
     [[nodiscard]] const std::vector<std::string> &getResult() {
-        m_updated = false;
         return m_result;
     }
 

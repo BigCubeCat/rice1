@@ -34,32 +34,26 @@ void TProcessor::process() {
             m_queue.pop();
             TaskPart tp;
             tp.partNumber = m_current->rank();
-            QStringList data;
-            data.reserve(static_cast<int>(result.size()));
+            tp.answers.reserve(static_cast<int>(result.size()));
             for (const auto &word : result) {
-                data.push_back(QString::fromStdString(word));
+                tp.answers.push_back(QString::fromStdString(word));
             }
             const auto body = utils::taskPart2body(tp, m_current->id());
-            qDebug() << tp.answers.size();
             m_worker->sendPatchRequest(
                 m_managerUrl + "/internal/api/manager/hash/crack/request", body
             );
+            
         }
     }
     if (m_queue.empty()) {
         m_current = nullptr;
         return;
     }
-    qDebug() << "proces()";
     m_current = &m_queue.front();
-    qDebug() << "got current is nullptr == " << (m_current == nullptr);
-    qDebug() << m_current->id();
-    qDebug() << m_current->getHash();
     m_current->search();
 }
 
 crack_hash_worker::back::THashWorker utils::body2worker(const QString &body) {
-    qDebug() << "body2worker";
     xercesc::XMLPlatformUtils::Initialize();
     std::istringstream iss(body.toStdString());
     std::unique_ptr<dto::CrackHashManagerRequest> req(
@@ -80,7 +74,6 @@ crack_hash_worker::back::THashWorker utils::body2worker(const QString &body) {
     );
 
     xercesc::XMLPlatformUtils::Terminate();
-    qDebug() << "==";
 
     return worker;
 }
