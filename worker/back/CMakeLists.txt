@@ -5,7 +5,13 @@ add_library(BackLib STATIC
     hashworker.cpp
 )
 
-target_link_libraries(BackLib PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(BackLib PRIVATE OpenSSL::SSL OpenSSL::Crypto Qt6::Core   
+Qt6::Core
+  Qt6::HttpServer
+  Qt6::Xml
+  Qt6::Network
+
+)
 
 target_include_directories(BackLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

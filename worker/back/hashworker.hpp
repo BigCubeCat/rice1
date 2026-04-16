@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+
 namespace crack_hash_worker::back {
 class THashWorker {
 public:
@@ -25,7 +26,7 @@ public:
     }
 
     [[nodiscard]] const std::vector<std::string> &getResult() {
-        m_updated = true;
+        m_updated = false;
         return m_result;
     }
 
@@ -35,6 +36,10 @@ public:
 
     [[nodiscard]] std::string id() const {
         return m_id;
+    }
+
+    [[nodiscard]] std::string getHash() const {
+        return m_target_hash;
     }
 
 

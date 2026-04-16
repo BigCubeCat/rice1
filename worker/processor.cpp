@@ -50,7 +50,11 @@ void TProcessor::process() {
         m_current = nullptr;
         return;
     }
+    qDebug() << "proces()";
     m_current = &m_queue.front();
+    qDebug() << "got current is nullptr == " << (m_current == nullptr);
+    qDebug() << m_current->id();
+    qDebug() << m_current->getHash();
     m_current->search();
 }
 

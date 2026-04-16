@@ -2,6 +2,8 @@
 //
 #include <algorithm>
 
+#include <qdebug.h>
+
 #include "md5.hpp"
 
 
@@ -22,8 +24,10 @@ crack_hash_worker::back::THashWorker::THashWorker(
 
 
 void crack_hash_worker::back::THashWorker::search() {
-    m_result.clear();
     const size_t base = m_alphabet.size();
+    qDebug() << "search...\n";
+    qDebug() << "alphabet=" << m_alphabet;
+    qDebug() << "max_size=" << m_max_size;
 
     for (size_t len = 1; len <= m_max_size; ++len) {
         uint64_t totalCombinations = 1;
@@ -32,6 +36,7 @@ void crack_hash_worker::back::THashWorker::search() {
             if (__builtin_mul_overflow(
                     totalCombinations, base, &totalCombinations
                 )) {
+                m_updated  = true;
                 m_is_ready = true;
                 return;
             }
@@ -43,7 +48,14 @@ void crack_hash_worker::back::THashWorker::search() {
                                   (m_rank + 1) * chunkSize;
         for (uint64_t idx = startIndex; idx < endIndex; ++idx) {
             std::string word = indexToWord(idx, len, base);
-            if (crack_hash_worker::back::md5(word) == m_target_hash) {
+            qDebug() << "word = " << word;
+            const auto h = crack_hash_worker::back::md5(word);
+            qDebug() << h;
+            qDebug() << crack_hash_worker::back::md5(word);
+            qDebug() << m_target_hash;
+            qDebug() << "===";
+            if (h == m_target_hash) {
+                qDebug() << "got word == " << word;
                 m_result.push_back(word);
                 m_updated = true;
             }
